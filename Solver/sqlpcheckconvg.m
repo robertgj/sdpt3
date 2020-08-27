@@ -44,8 +44,16 @@ if (param.normX > 1e15*param.normX0 || param.normZ > 1e15*param.normZ0)
 end
 err = max(infeas,relgap);
 idx = max(2,iter-9): iter+1;
-pratio = (1-runhist.pinfeas(idx)./runhist.pinfeas(idx-1))./runhist.pstep(idx);
-dratio = (1-runhist.dinfeas(idx)./runhist.dinfeas(idx-1))./runhist.dstep(idx);
+if any(runhist.pinfeas(idx-1)==0.0) || any(runhist.pstep(idx)==0.0)
+  pratio = 1;
+else
+  pratio = (1-runhist.pinfeas(idx)./runhist.pinfeas(idx-1))./runhist.pstep(idx);
+end
+if any(runhist.dinfeas(idx-1)==0.0) || any(runhist.dstep(idx)==0.0)
+  dratio = 1;
+else
+  dratio = (1-runhist.dinfeas(idx)./runhist.dinfeas(idx-1))./runhist.dstep(idx);
+end
 if (param.homRd < 0.1*sqrt(err*max(param.inftol,1e-13))) ...
         && (iter > 30 || termcode==3) && (mean(abs(dratio-1)) > 0.5)
     termcode = 1;
